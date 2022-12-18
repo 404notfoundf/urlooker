@@ -13,7 +13,7 @@ import (
 func Push() {
 	for {
 		checkResults := make([]*dataobj.CheckResult, 0)
-		itemResults := g.CheckResultQueue.PopBack(500)
+		itemResults := g.CheckResultQueue.PopBack(10)
 		if len(itemResults) == 0 {
 			time.Sleep(1 * time.Second)
 			continue

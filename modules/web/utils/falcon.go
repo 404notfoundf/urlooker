@@ -36,8 +36,8 @@ func PushFalcon(addr string, itemCheckedArray []*dataobj.CheckResult, ip string)
 		pushDatas = append(pushDatas, &data)
 
 		//url 响应时间
-		data2 := getMetric(itemChecked, "url_resp_time", tags, int64(itemChecked.RespTime))
-		pushDatas = append(pushDatas, &data2)
+		//data2 := getMetric(itemChecked, "url_resp_time", tags, int64(itemChecked.RespTime))
+		//pushDatas = append(pushDatas, &data2)
 	}
 
 	err := pushData(addr, pushDatas)
@@ -63,6 +63,7 @@ func getMetric(item *dataobj.CheckResult, metric, tags string, value int64) Metr
 }
 
 func pushData(addr string, data []*MetricValue) error {
+	// 推送 =>
 	d, err := json.Marshal(data)
 	if err != nil {
 		return err

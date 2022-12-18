@@ -2,14 +2,14 @@ package utils
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
-    "fmt"
-    "regexp"
 
 	"github.com/710leo/urlooker/dataobj"
 	"github.com/710leo/urlooker/modules/agent/g"

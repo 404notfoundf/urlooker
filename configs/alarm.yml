@@ -1,5 +1,5 @@
-debug: true
-smsEnabled: true
+debug: false
+smsEnabled: false
 rpc:
     listen: "0.0.0.0:1986"
 web: 
@@ -8,7 +8,7 @@ web:
     timeout: 300 
     interval: 60 #get strategy interval
 smtp: 
-    enabled: true
+    enabled: false
     addr: "mail.addr:25"
     username: "mail@mail.com"
     password: ""
