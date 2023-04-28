@@ -47,6 +47,7 @@ func getDetectedItem() error {
 */
 
 func getDetectedItemWihInterval() error {
+	log.Println("1111111111111111111111")
 	detectedItemMap := make(map[string]map[int][]*dataobj.DetectedItemWithInterval)
 	strateges, err := model.GetAllStrategyByCron()
 	if err != nil {
@@ -54,6 +55,7 @@ func getDetectedItemWihInterval() error {
 		return err
 	}
 	for _, s := range strateges {
+		log.Println("!!!!star", s)
 		detectedItem := newDetectedItem(s)
 		idc := detectedItem.Idc
 		if _, exists := detectedItemMap[idc][detectedItem.Interval]; exists {
@@ -75,11 +77,14 @@ func newDetectedItem(s *model.Strategy) dataobj.DetectedItemWithInterval {
 	}
 	var force bool
 	var interval int
-	for _, u := range g.Config.UrlInterval {
-		if u.Url == s.Url {
-			force = true
-			interval = u.Interval
-			break
+	// 判断是否为空
+	if len(g.Config.UrlInterval) != 0 {
+		for _, u := range g.Config.UrlInterval {
+			if u.Url == s.Url {
+				force = true
+				interval = u.Interval
+				break
+			}
 		}
 	}
 	var detectedItem dataobj.DetectedItemWithInterval
@@ -102,5 +107,6 @@ func newDetectedItem(s *model.Strategy) dataobj.DetectedItemWithInterval {
 	} else {
 		detectedItem.Interval = g2.Config.Web.Interval
 	}
+	log.Println("detecterItem is", detectedItem)
 	return detectedItem
 }
