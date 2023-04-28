@@ -14,7 +14,6 @@ import (
 func GetDetectedItem() {
 	t1 := time.NewTicker(time.Duration(60) * time.Second)
 	for {
-		// err := getDetectedItem()
 		err := getDetectedItemWihInterval()
 		if err != nil {
 			time.Sleep(time.Second * 1)
@@ -48,37 +47,22 @@ func getDetectedItem() error {
 */
 
 func getDetectedItemWihInterval() error {
-	detectedItemMap := make(map[string]map[int][]*dataobj.DetectedItem)
-	stras, err := model.GetAllStrategyByCron()
+	detectedItemMap := make(map[string]map[int][]*dataobj.DetectedItemWithInterval)
+	strateges, err := model.GetAllStrategyByCron()
 	if err != nil {
 		log.Println("get strategies error:", err)
 	}
-	for _, s := range stras {
+	for _, s := range strateges {
 		detectedItem := newDetectedItem(s)
 		idc := detectedItem.Idc
-		d := dataobj.DetectedItem{
-			Idc:        idc,
-			Target:     detectedItem.Target,
-			Creator:    detectedItem.Creator,
-			Sid:        detectedItem.Sid,
-			Keywords:   detectedItem.Keywords,
-			Data:       detectedItem.Data,
-			Tag:        detectedItem.Tag,
-			Endpoint:   detectedItem.Endpoint,
-			ExpectCode: detectedItem.ExpectCode,
-			Timeout:    detectedItem.Timeout,
-			Header:     detectedItem.Header,
-			PostData:   detectedItem.PostData,
-			Method:     detectedItem.Method,
-			Domain:     detectedItem.Domain,
-		}
 		if _, exists := detectedItemMap[idc][detectedItem.Interval]; exists {
 			// 修改类型
-			detectedItemMap[idc][detectedItem.Interval] = append(detectedItemMap[idc][detectedItem.Interval], &d)
+			detectedItemMap[idc][detectedItem.Interval] = append(detectedItemMap[idc][detectedItem.Interval], &detectedItem)
 		} else {
-			detectedItemMap[idc][detectedItem.Interval] = []*dataobj.DetectedItem{&d}
+			detectedItemMap[idc][detectedItem.Interval] = []*dataobj.DetectedItemWithInterval{&detectedItem}
 		}
 	}
+	g.DetectedItemWithIntervalMap.Set(detectedItemMap)
 	return nil
 }
 
