@@ -96,6 +96,7 @@ func newDetectedItem(s *model.Strategy) dataobj.DetectedItemWithInterval {
 	detectedItem.PostData = s.PostData
 	detectedItem.Method = s.Method
 	detectedItem.Domain = domain
+	detectedItem.ExpectCode = s.ExpectCode
 	if force {
 		detectedItem.Interval = interval
 	} else {
