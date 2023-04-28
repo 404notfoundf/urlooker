@@ -59,7 +59,6 @@ func (this *Web) SendResult(req dataobj.SendResultReq, reply *string) error {
 				return nil
 			}
 		}
-
 	}
 
 	if g.Config.Falcon.Enable {
@@ -96,6 +95,15 @@ func (this *Web) SendResult(req dataobj.SendResultReq, reply *string) error {
 
 func (this *Web) GetItem(idc string, resp *dataobj.GetItemResponse) error {
 	items, exists := g.DetectedItemMap.Get(idc)
+	if !exists {
+		resp.Message = "no found item assigned to " + idc
+	}
+	resp.Data = items
+	return nil
+}
+
+func (this *Web) GetItemWithInterval(idc string, resp *dataobj.GetItemWithIntervalResponse) error {
+	items, exists := g.DetectedItemWithIntervalMap.Get(idc)
 	if !exists {
 		resp.Message = "no found item assigned to " + idc
 	}

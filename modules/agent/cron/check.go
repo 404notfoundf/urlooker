@@ -12,6 +12,7 @@ import (
 	"github.com/710leo/urlooker/modules/agent/utils"
 )
 
+/*
 func StartCheck() {
 	t1 := time.NewTicker(time.Duration(g.Config.Web.Interval) * time.Second)
 	for {
@@ -19,7 +20,6 @@ func StartCheck() {
 		if err != nil {
 			log.Println("[ERROR] ", err)
 		}
-
 		for _, item := range items {
 			g.WorkerChan <- 1
 			go utils.CheckTargetStatus(item)
@@ -27,6 +27,7 @@ func StartCheck() {
 		<-t1.C
 	}
 }
+
 
 func GetItem() ([]*dataobj.DetectedItem, error) {
 	var resp dataobj.GetItemResponse
@@ -40,5 +41,47 @@ func GetItem() ([]*dataobj.DetectedItem, error) {
 		return []*dataobj.DetectedItem{}, err
 	}
 
+	return resp.Data, err
+}
+
+*/
+
+/*
+	重新计算，需要根据相应的时间，创建定时器
+*/
+func Check() {
+	items, err := GetItemWithInterval()
+	if err != nil {
+		log.Println("[ERROR] ", err)
+	}
+	for index, item := range items {
+		log.Println("index, ", index, "item, ", item)
+		CronCheck(item, index)
+	}
+}
+
+func CronCheck(data []*dataobj.DetectedItemWithInterval, timeDuration int) {
+	t1 := time.NewTicker(time.Duration(timeDuration) * time.Second)
+	for {
+		select {
+		case <-t1.C:
+			for _, item := range data {
+				g.WorkerChan <- 1
+				go utils.CheckTargetStatusWithInterval(item)
+			}
+		}
+	}
+}
+
+func GetItemWithInterval() (map[int][]*dataobj.DetectedItemWithInterval, error) {
+	var resp dataobj.GetItemWithIntervalResponse
+	err := backend.CallRpc("Web.GetItemWithInterval", g.Config.IDC, &resp)
+	if err != nil {
+		return map[int][]*dataobj.DetectedItemWithInterval{}, err
+	}
+	if resp.Message != "" {
+		err := fmt.Errorf(resp.Message)
+		return map[int][]*dataobj.DetectedItemWithInterval{}, err
+	}
 	return resp.Data, err
 }

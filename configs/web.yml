@@ -23,7 +23,7 @@ ldap:
     userField: "uid"
     attributes: ["sn","mail","telephoneNumber"]
 alarm: #告警判断组件，为true表示使用alarm组件
-    enable: true 
+    enable: false
     batch: 200
     replicas: 500
     connTimeout: 1000

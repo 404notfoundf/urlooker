@@ -28,7 +28,6 @@ func GetAllStrategyCount(mine int, query, username string) (int64, error) {
 
 func GetAllStrategy(mine, limit, offset int, query, username string) ([]*Strategy, error) {
 	items := make([]*Strategy, 0)
-
 	var err error
 	if mine == 1 {
 		if query != "" {

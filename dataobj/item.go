@@ -24,6 +24,25 @@ type DetectedItem struct {
 	PostData   string `json:"post_data"`
 }
 
+// 会有对应的interval时间间隔
+type DetectedItemWithInterval struct {
+	Sid        int64  `json:"sid"`
+	Method     string `json:"method"`
+	Domain     string `json:"domain"`
+	Target     string `json:"target"`
+	Keywords   string `json:"keywords"`
+	Timeout    int    `json:"timeout"`
+	Creator    string `json:"creator"`
+	Data       string `json:"data"`
+	Endpoint   string `json:"endpoint"`
+	Tag        string `json:"tag"`
+	ExpectCode string `json:"expect_code"`
+	Idc        string `json:"idc"`
+	Header     string `json:"header"`
+	PostData   string `json:"post_data"`
+	Interval   int    `json:"interval"`
+}
+
 //agent上报的数据结构
 type CheckResult struct {
 	Sid      int64  `json:"sid"`
@@ -64,4 +83,9 @@ type SendResultReq struct {
 type GetItemResponse struct {
 	Message string
 	Data    []*DetectedItem
+}
+
+type GetItemWithIntervalResponse struct {
+	Message string
+	Data    map[int][]*DetectedItemWithInterval
 }

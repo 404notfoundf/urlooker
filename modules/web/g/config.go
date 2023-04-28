@@ -89,6 +89,12 @@ type GlobalConfig struct {
 	Statsd           *StatsdConfig `yaml:"statsd"`
 	Prom             *PromConfig   `yaml:"prom"`
 	IDC              []string      `yaml:"idc"`
+	UrlInterval      []UrlInterval `yaml:"url_interval"`
+}
+
+type UrlInterval struct {
+	Url      string `yaml:"url"`
+	Interval int    `yaml:"interval"`
 }
 
 var (
