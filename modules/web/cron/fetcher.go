@@ -51,6 +51,7 @@ func getDetectedItemWihInterval() error {
 	strateges, err := model.GetAllStrategyByCron()
 	if err != nil {
 		log.Println("get strategies error:", err)
+		return err
 	}
 	for _, s := range strateges {
 		detectedItem := newDetectedItem(s)
