@@ -1,7 +1,6 @@
 package cron
 
 import (
-	g2 "github.com/710leo/urlooker/modules/agent/g"
 	"log"
 	"time"
 
@@ -47,7 +46,6 @@ func getDetectedItem() error {
 */
 
 func getDetectedItemWihInterval() error {
-	log.Println("1111111111111111111111")
 	detectedItemMap := make(map[string]map[int][]*dataobj.DetectedItemWithInterval)
 	strateges, err := model.GetAllStrategyByCron()
 	if err != nil {
@@ -62,6 +60,10 @@ func getDetectedItemWihInterval() error {
 			// 修改类型
 			detectedItemMap[idc][detectedItem.Interval] = append(detectedItemMap[idc][detectedItem.Interval], &detectedItem)
 		} else {
+			if detectedItemMap[idc] == nil {
+				// 注意在二维的map中，一维的map也需要使用make来构造一下
+				detectedItemMap[idc] = make(map[int][]*dataobj.DetectedItemWithInterval)
+			}
 			detectedItemMap[idc][detectedItem.Interval] = []*dataobj.DetectedItemWithInterval{&detectedItem}
 		}
 	}
@@ -78,6 +80,8 @@ func newDetectedItem(s *model.Strategy) dataobj.DetectedItemWithInterval {
 	var force bool
 	var interval int
 	// 判断是否为空
+	log.Println("len g.urlinterval is", len(g.Config.UrlInterval))
+	log.Println("!!!g.config.urlinterval", g.Config.UrlInterval)
 	if len(g.Config.UrlInterval) != 0 {
 		for _, u := range g.Config.UrlInterval {
 			if u.Url == s.Url {
@@ -105,7 +109,9 @@ func newDetectedItem(s *model.Strategy) dataobj.DetectedItemWithInterval {
 	if force {
 		detectedItem.Interval = interval
 	} else {
-		detectedItem.Interval = g2.Config.Web.Interval
+		// TODO： 暂时写死一下
+		detectedItem.Interval = 60
+		//detectedItem.Interval = g2.Config.Web.Interval
 	}
 	log.Println("detecterItem is", detectedItem)
 	return detectedItem
