@@ -14,6 +14,7 @@ import (
 	"github.com/710leo/urlooker/modules/agent/utils"
 )
 
+/*
 func StartCheck() {
 	t1 := time.NewTicker(time.Duration(g.Config.Web.Interval) * time.Second)
 	for {
@@ -29,7 +30,7 @@ func StartCheck() {
 		<-t1.C
 	}
 }
-
+*/
 
 func Check() {
 	var once sync.Once
@@ -93,7 +94,8 @@ func GetItemInterval() (map[int][]*dataobj.DetectedItemWithInterval, error) {
 }
 
 
-func newDetectedItem (item *dataobj.DetectedItem) (new *dataobj.DetectedItemWithInterval){
+func newDetectedItem (item *dataobj.DetectedItem) *dataobj.DetectedItemWithInterval{
+	log.Println("item", item)
 	var force bool
 	var interval int
 	if len(g.Config.UrlInterval) != 0 {
@@ -112,26 +114,27 @@ func newDetectedItem (item *dataobj.DetectedItem) (new *dataobj.DetectedItemWith
 			}
 		}
 	}
-	new.Target = item.Target
-	new.Tag = item.Tag
-	new.Idc = item.Idc
-	new.Creator = item.Creator
-	new.Sid = item.Sid
-	new.Keywords = item.Keywords
-	new.Data = item.Data
-	new.Endpoint = item.Endpoint
-	new.Timeout = item.Timeout
-	new.Header = item.Header
-	new.PostData = item.PostData
-	new.Method = item.Method
-	new.Domain = item.Domain
-	new.ExpectCode = item.ExpectCode
+	var n *dataobj.DetectedItemWithInterval
+	n.Target = item.Target
+	n.Tag = item.Tag
+	n.Idc = item.Idc
+	n.Creator = item.Creator
+	n.Sid = item.Sid
+	n.Keywords = item.Keywords
+	n.Data = item.Data
+	n.Endpoint = item.Endpoint
+	n.Timeout = item.Timeout
+	n.Header = item.Header
+	n.PostData = item.PostData
+	n.Method = item.Method
+	n.Domain = item.Domain
+	n.ExpectCode = item.ExpectCode
 	if force {
-		new.Interval = interval
+		n.Interval = interval
 	} else {
-		new.Interval = g.Config.Web.Interval
+		n.Interval = g.Config.Web.Interval
 	}
-	return new
+	return n
 }
 
 func GetItem() ([]*dataobj.DetectedItem, error) {
