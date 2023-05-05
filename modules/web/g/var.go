@@ -58,3 +58,11 @@ func (that *DetectedItemWithIntervalSafeMap) Set(detectedItemMap map[string]map[
 	defer that.Unlock()
 	that.M = detectedItemMap
 }
+
+//GetWithTwoKey 此方法为了相同的idc，相同的时间
+func (that *DetectedItemWithIntervalSafeMap) GetWithTwoKey(key1 string, key2 int) ([]*dataobj.DetectedItemWithInterval, bool) {
+	that.RLock()
+	defer that.RUnlock()
+	ipItems, exists := that.M[key1][key2]
+	return ipItems, exists
+}

@@ -44,8 +44,8 @@ prom:
     enable: false
     addr: "ip:port"
 url_interval:
-    - url: "http"
-      interval: 30
+    - url: "http://www.google.com"
+      interval: 120
 
 
 

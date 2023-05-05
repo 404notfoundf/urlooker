@@ -89,3 +89,8 @@ type GetItemWithIntervalResponse struct {
 	Message string
 	Data    map[int][]*DetectedItemWithInterval
 }
+
+type GetItemWithSameIntervalResponse struct {
+	Message string
+	Data    []*DetectedItemWithInterval
+}

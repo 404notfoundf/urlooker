@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/710leo/urlooker/dataobj"
@@ -108,5 +109,25 @@ func (this *Web) GetItemWithInterval(idc string, resp *dataobj.GetItemWithInterv
 		resp.Message = "no found item assigned to " + idc
 	}
 	resp.Data = items
+	return nil
+}
+
+func (this *Web) GetItemWithSameInterval(m []string, resp *dataobj.GetItemWithSameIntervalResponse) error {
+	// 特殊处理一下字符串数组
+	if len(m) == 2 {
+		value, err := strconv.Atoi(m[1])
+		if err != nil {
+			resp.Message = "interval is error, cannot transfer string to int "
+		} else {
+			items, exists := g.DetectedItemWithIntervalMap.GetWithTwoKey(m[0], value)
+			if !exists {
+				resp.Message = "no found item assigned to " + m[0] + "with interval" + m[1]
+			}
+			resp.Data = items
+		}
+	} else {
+		resp.Message = "wrong string length"
+	}
+
 	return nil
 }

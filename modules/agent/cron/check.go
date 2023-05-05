@@ -2,14 +2,15 @@ package cron
 
 import (
 	"fmt"
-	"log"
-	"time"
-
 	"github.com/710leo/urlooker/dataobj"
+	"github.com/710leo/urlooker/modules/agent/utils"
+	"log"
+	"strconv"
+	"sync"
+	"time"
 
 	"github.com/710leo/urlooker/modules/agent/backend"
 	"github.com/710leo/urlooker/modules/agent/g"
-	"github.com/710leo/urlooker/modules/agent/utils"
 )
 
 /*
@@ -43,33 +44,43 @@ func GetItem() ([]*dataobj.DetectedItem, error) {
 
 	return resp.Data, err
 }
-
 */
 
 /*
 	重新计算，需要根据相应的时间，创建定时器
 */
-func Check() {
-	items, err := GetItemWithInterval()
-	if err != nil {
-		log.Println("[ERROR] ", err)
-	}
-	for index, item := range items {
-		log.Println("index, ", index, "item, ", item)
-		CronCheck(item, index)
-	}
-}
 
-func CronCheck(data []*dataobj.DetectedItemWithInterval, timeDuration int) {
-	t1 := time.NewTicker(time.Duration(timeDuration) * time.Second)
+func Check() {
+	var once sync.Once
 	for {
-		select {
-		case <-t1.C:
-			for _, item := range data {
-				g.WorkerChan <- 1
-				go utils.CheckTargetStatusWithInterval(item)
+		once.Do(func() {
+			items, err := GetItemWithInterval()
+			if err != nil {
+				log.Println("[ERROR] ", err)
 			}
-		}
+			log.Println("len(items)", len(items))
+			for index, item := range items {
+				log.Println("index, ", index, "item, ", item)
+				go func(timeDuration int) {
+					t1 := time.NewTicker(time.Duration(timeDuration) * time.Second)
+					for {
+						select {
+						case <-t1.C:
+							// 获取相同时间所有的url
+							data, err := GetItemWithSameInterval(timeDuration)
+							if err != nil {
+								log.Println("error is", err.Error())
+								break
+							}
+							for _, i := range data {
+								g.WorkerChan <- 1
+								go utils.CheckTargetStatusWithInterval(i)
+							}
+						}
+					}
+				}(index)
+			}
+		})
 	}
 }
 
@@ -82,6 +93,23 @@ func GetItemWithInterval() (map[int][]*dataobj.DetectedItemWithInterval, error) 
 	if resp.Message != "" {
 		err := fmt.Errorf(resp.Message)
 		return map[int][]*dataobj.DetectedItemWithInterval{}, err
+	}
+	return resp.Data, err
+}
+
+func GetItemWithSameInterval(interval int) ([]*dataobj.DetectedItemWithInterval, error) {
+	// 转换为字符串数组
+	var m []string
+	m = append(m, g.Config.IDC)
+	m = append(m, strconv.Itoa(interval))
+	var resp dataobj.GetItemWithSameIntervalResponse
+	err := backend.CallRpc("Web.GetItemWithSameInterval", m, &resp)
+	if err != nil {
+		return []*dataobj.DetectedItemWithInterval{}, err
+	}
+	if resp.Message != "" {
+		err := fmt.Errorf(resp.Message)
+		return []*dataobj.DetectedItemWithInterval{}, err
 	}
 	return resp.Data, err
 }
