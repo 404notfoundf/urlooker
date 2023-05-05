@@ -48,7 +48,7 @@ func main() {
 	}
 
 	go cron.Push()
-	cron.StartCheck()
+	cron.Check()
 }
 
 func handleVersion(displayVersion bool) {

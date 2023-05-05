@@ -11,7 +11,7 @@ http:
 rpc:
     listen: "0.0.0.0:1985"
 mysql:
-    addr: "root:urlooker.pass@tcp(127.0.0.1:3306)/urlooker?charset=utf8&&loc=Asia%2FShanghai"
+    addr: "root:Lwf20000625@tcp(127.0.0.1:3306)/urlooker?charset=utf8&&loc=Asia%2FShanghai"
     idle: 10
     max: 20
 ldap:
@@ -23,7 +23,7 @@ ldap:
     userField: "uid"
     attributes: ["sn","mail","telephoneNumber"]
 alarm: #告警判断组件，为true表示使用alarm组件
-    enable: true 
+    enable: false
     batch: 200
     replicas: 500
     connTimeout: 1000
@@ -34,14 +34,12 @@ alarm: #告警判断组件，为true表示使用alarm组件
     cluster:
         node-1: "127.0.0.1:1986"
 falcon: #为 true 表示要向 falcon 或者 nightingale 推送数据
-    enable: false
-    addr: "http://transfer.addr/api/push"
+    enable: true
+    addr: "http://127.0.0.1:1988/v1/push"
     interval: 60
 statsd:
     enable: false
     addr: "ip:port"
-prom: 
+prom:
     enable: false
     addr: "ip:port"
-
-

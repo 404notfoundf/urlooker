@@ -20,6 +20,12 @@ type GlobalConfig struct {
 	IDC    string   `yaml:"idc"`
 	Worker int      `yaml:"worker"`
 	Web    *WebConf `yaml:"web"`
+	UrlInterval      []UrlInterval `yaml:"url_interval"`
+}
+
+type UrlInterval struct {
+	Url      []string `yaml:"url"`
+	Interval int      `yaml:"interval"`
 }
 
 var (

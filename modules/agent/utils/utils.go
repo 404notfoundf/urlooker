@@ -2,14 +2,14 @@ package utils
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
-    "fmt"
-    "regexp"
 
 	"github.com/710leo/urlooker/dataobj"
 	"github.com/710leo/urlooker/modules/agent/g"
@@ -24,7 +24,7 @@ const (
 	KEYWORD_UNMATCH   = 3
 )
 
-func CheckTargetStatus(item *dataobj.DetectedItem) {
+func CheckTargetStatus(item *dataobj.DetectedItemWithInterval) {
 	defer func() {
 		<-g.WorkerChan
 	}()
@@ -33,7 +33,7 @@ func CheckTargetStatus(item *dataobj.DetectedItem) {
 	g.CheckResultQueue.PushFront(checkResult)
 }
 
-func checkTargetStatus(item *dataobj.DetectedItem) (itemCheckResult *dataobj.CheckResult) {
+func checkTargetStatus(item *dataobj.DetectedItemWithInterval) (itemCheckResult *dataobj.CheckResult) {
 	itemCheckResult = &dataobj.CheckResult{
 		Sid:      item.Sid,
 		Domain:   item.Domain,
@@ -42,7 +42,7 @@ func checkTargetStatus(item *dataobj.DetectedItem) (itemCheckResult *dataobj.Che
 		Endpoint: item.Endpoint,
 		Target:   item.Target,
 		RespTime: item.Timeout,
-		Step:     int64(g.Config.Web.Interval),
+		Step:     int64(item.Interval),
 		RespCode: "-",
 	}
 	reqStartTime := time.Now()

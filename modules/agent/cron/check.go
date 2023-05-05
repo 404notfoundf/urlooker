@@ -1,8 +1,10 @@
 package cron
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/710leo/urlooker/dataobj"
@@ -28,6 +30,110 @@ func StartCheck() {
 	}
 }
 
+
+func Check() {
+	var once sync.Once
+	for {
+		once.Do(func() {
+			items, err := GetItemInterval()
+			if err != nil {
+				log.Println("[ERROR] ", err)
+			}
+			log.Println("len(items)", len(items))
+			for index, item := range items {
+				log.Println("index, ", index, "item, ", item)
+				go func(timeDuration int) {
+					t1 := time.NewTicker(time.Duration(timeDuration) * time.Second)
+					for {
+						select {
+						case <-t1.C:
+							// 获取相同时间所有的url
+							data, err := GetItemSameInterval(timeDuration)
+							if err != nil {
+								log.Println("error is", err.Error())
+								break
+							}
+							for _, i := range data {
+								g.WorkerChan <- 1
+								go utils.CheckTargetStatus(i)
+							}
+						}
+					}
+				}(index)
+			}
+		})
+	}
+}
+
+
+func GetItemSameInterval(interval int) (data []*dataobj.DetectedItemWithInterval, err error) {
+	itemInterval, err := GetItemInterval()
+	if err != nil {
+		return []*dataobj.DetectedItemWithInterval{}, err
+	}
+	if _, exists := itemInterval[interval]; exists {
+		return itemInterval[interval], nil
+	} else {
+		return []*dataobj.DetectedItemWithInterval{}, errors.New("not found")
+	}
+}
+
+func GetItemInterval() (map[int][]*dataobj.DetectedItemWithInterval, error) {
+	// 将得到的数组分成合适的份数
+	items, err := GetItem()
+	if err != nil {
+		return map[int][]*dataobj.DetectedItemWithInterval{}, err
+	}
+	m := make(map[int][]*dataobj.DetectedItemWithInterval)
+	for _, item := range items {
+		decetcedItem := newDetectedItem(item)
+		m[decetcedItem.Interval] = append(m[decetcedItem.Interval], decetcedItem)
+	}
+	return m, nil
+}
+
+
+func newDetectedItem (item *dataobj.DetectedItem) (new *dataobj.DetectedItemWithInterval){
+	var force bool
+	var interval int
+	if len(g.Config.UrlInterval) != 0 {
+		for _, u := range g.Config.UrlInterval {
+			var isOK bool
+			for _, index := range u.Url {
+				if index == item.Target {
+					isOK = true
+					break
+				}
+			}
+			if isOK {
+				interval = u.Interval
+				force = true
+				break
+			}
+		}
+	}
+	new.Target = item.Target
+	new.Tag = item.Tag
+	new.Idc = item.Idc
+	new.Creator = item.Creator
+	new.Sid = item.Sid
+	new.Keywords = item.Keywords
+	new.Data = item.Data
+	new.Endpoint = item.Endpoint
+	new.Timeout = item.Timeout
+	new.Header = item.Header
+	new.PostData = item.PostData
+	new.Method = item.Method
+	new.Domain = item.Domain
+	new.ExpectCode = item.ExpectCode
+	if force {
+		new.Interval = interval
+	} else {
+		new.Interval = g.Config.Web.Interval
+	}
+	return new
+}
+
 func GetItem() ([]*dataobj.DetectedItem, error) {
 	var resp dataobj.GetItemResponse
 	log.Println(g.Config.IDC)
@@ -39,6 +145,5 @@ func GetItem() ([]*dataobj.DetectedItem, error) {
 		err := fmt.Errorf(resp.Message)
 		return []*dataobj.DetectedItem{}, err
 	}
-
 	return resp.Data, err
 }
