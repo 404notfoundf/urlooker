@@ -114,7 +114,7 @@ func newDetectedItem (item *dataobj.DetectedItem) *dataobj.DetectedItemWithInter
 			}
 		}
 	}
-	var n *dataobj.DetectedItemWithInterval
+	var n dataobj.DetectedItemWithInterval
 	n.Target = item.Target
 	n.Tag = item.Tag
 	n.Idc = item.Idc
@@ -134,7 +134,7 @@ func newDetectedItem (item *dataobj.DetectedItem) *dataobj.DetectedItemWithInter
 	} else {
 		n.Interval = g.Config.Web.Interval
 	}
-	return n
+	return &n
 }
 
 func GetItem() ([]*dataobj.DetectedItem, error) {
