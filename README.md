@@ -1,32 +1,25 @@
 ## [urlooker](https://github.com/710leo/urlooker)
-enterprise-level websites monitoring system    
-[English](https://github.com/710leo/urlooker)|[中文](https://github.com/710leo/urlooker/blob/master/readme_zh.md)
+监控web服务可用性及访问质量，采用go语言编写，易于安装和二次开发    
 
 ## Feature
-- status code
-- respose time
-- page keyword 
-- customize header
-- customize post body
-- support get post put method
-- send to nightingale、open-falcon、statsd、prometheus
+- 返回状态码检测
+- 页面响应时间检测
+- 页面关键词匹配检测
+- 自定义Header
+- GET、POST、PUT访问
+- 自定义POST BODY
+- 检测结果支持推送 nightingale、open-falcon
 
 ## Architecture
 ![Architecture](img/urlooker_arch.png)
 
-## ScreenShot
-
-![](img/urlooker_en1.png)
-![](img/urlooker_en2.png)
-![stra](img/urlooker_stra.png)
-
-## FAQ
-- [wiki](https://github.com/710leo/urlooker/wiki)
-- [FAQ](https://github.com/710leo/urlooker/wiki/FAQ)
-- default user/password：admin/password
+## 常见问题
+- [wiki手册](https://github.com/710leo/urlooker/wiki)
+- [常见问题](https://github.com/710leo/urlooker/wiki/FAQ)
+- 初始用户名密码：admin/password
 
 ## Install
-##### install by docker
+#### docker 安装
 
 ```bash
 git clone https://github.com/710leo/urlooker.git
@@ -36,23 +29,36 @@ docker volume create urlooker-vol
 docker run -p 1984:1984 -d --name urlooker --mount source=urlooker-vol,target=/var/lib/mysql --restart=always [CONTAINER ID]
 ```
 
-##### install by code
+#### 源码安装
 ```bash
-# install dependence
-yum install -y mysql-server
+# 插入数据库表
 wget https://raw.githubusercontent.com/710leo/urlooker/master/sql/schema.sql
 mysql -h 127.0.0.1 -u root -p < schema.sql
 
-curl https://raw.githubusercontent.com/710leo/urlooker/master/install.sh|bash
-cd $GOPATH/src/github.com/710leo/urlooker
+# 从github上拉取对应的代码
+git clone -b develop [xxx地址]
 
-# change [mysql root password]to your mysql root password
-sed -i 's/urlooker.pass/[mysql root password]/g' configs/web.yml
+# 将web.yml配置文件中mysql部分，修改用户名密码
+ mysql:
+    addr: "root:xxxxx@tcp(127.0.0.1:3306)/urlooker?charset=utf8&&loc=Asia%2FShanghai"
+    idle: 10
+    max: 20
+# 如果需要添加不同时间的访问，那么只需要在agent.yml添加配置即可（url支持数组）
+  url_interval:
+    - url: ["http://www.abc.com", "http://www.a.com"]
+      interval: 60
+    - url: ["http://www.abd.com"]
+      interval: 90
 
-./control start all
+# 编译及运行
+./control build web
+./control build agent
+
+./control start web
+./control start agent
+
+# 注：如果添加不同时间访问，需要重新启动agent
+./control stop agent
+./control start agent
 ```
-
-open http://127.0.0.1:1984 in browser
-
-## Q&A
-Gitter: [urlooker](https://gitter.im/urllooker/community)
+打开浏览器访问 http://127.0.0.1:1984 即可
