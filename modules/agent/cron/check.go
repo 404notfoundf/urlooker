@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"sync"
 	"time"
 
 	"github.com/710leo/urlooker/dataobj"
@@ -33,39 +32,35 @@ func StartCheck() {
 */
 
 func Check() {
-	var once sync.Once
-	for {
-		once.Do(func() {
-			items, err := GetItemInterval()
-			if err != nil {
-				log.Println("[ERROR] ", err)
-			}
-			log.Println("len(items)", len(items))
-			for index, item := range items {
-				log.Println("index, ", index, "item, ", item)
-				go func(timeDuration int) {
-					t1 := time.NewTicker(time.Duration(timeDuration) * time.Second)
-					for {
-						select {
-						case <-t1.C:
-							// 获取相同时间所有的url
-							data, err := GetItemSameInterval(timeDuration)
-							if err != nil {
-								log.Println("error is", err.Error())
-								break
-							}
-							for _, i := range data {
-								g.WorkerChan <- 1
-								go utils.CheckTargetStatus(i)
-							}
-						}
-					}
-				}(index)
-			}
-		})
+	items, err := GetItemInterval()
+	if err != nil {
+		log.Println("[ERROR] ", err)
 	}
+	log.Println("len(items)", len(items))
+	for index, item := range items {
+		log.Println("index, ", index, "item, ", item)
+		go func(timeDuration int) {
+			t1 := time.NewTicker(time.Duration(timeDuration) * time.Second)
+			for {
+				select {
+				case <-t1.C:
+					// 获取相同时间所有的url
+					data, err := GetItemSameInterval(timeDuration)
+					if err != nil {
+						log.Println("error is", err.Error())
+						break
+					}
+					for _, i := range data {
+						g.WorkerChan <- 1
+						go utils.CheckTargetStatus(i)
+					}
+				}
+			}
+		}(index)
+	}
+	quit := make(chan bool)
+	<-quit
 }
-
 
 func GetItemSameInterval(interval int) (data []*dataobj.DetectedItemWithInterval, err error) {
 	itemInterval, err := GetItemInterval()
@@ -93,8 +88,7 @@ func GetItemInterval() (map[int][]*dataobj.DetectedItemWithInterval, error) {
 	return m, nil
 }
 
-
-func newDetectedItem (item *dataobj.DetectedItem) *dataobj.DetectedItemWithInterval{
+func newDetectedItem(item *dataobj.DetectedItem) *dataobj.DetectedItemWithInterval {
 	log.Println("item", item)
 	var force bool
 	var interval int
