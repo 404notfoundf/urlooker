@@ -36,14 +36,14 @@ wget https://raw.githubusercontent.com/710leo/urlooker/master/sql/schema.sql
 mysql -h 127.0.0.1 -u root -p < schema.sql
 
 # 从github上拉取对应的代码
-git clone -b develop [xxx地址]
+git clone -b develop https://github.com/404notfoundf/urlooker.git
 
 # 将web.yml配置文件中mysql部分，修改用户名密码
  mysql:
-    addr: "root:xxxxx@tcp(127.0.0.1:3306)/urlooker?charset=utf8&&loc=Asia%2FShanghai"
+    addr: "username:password@tcp(127.0.0.1:3306)/urlooker?charset=utf8&&loc=Asia%2FShanghai"
     idle: 10
     max: 20
-# 如果需要添加不同时间的访问，那么只需要在agent.yml添加配置即可（url支持数组）
+# 如果需要添加不同时间的访问, 首先需要在原来已经存在的url的基础上进行配置, 在agent.yml添加配置即可（url支持数组）
   url_interval:
     - url: ["http://www.abc.com", "http://www.a.com"]
       interval: 60
@@ -58,7 +58,6 @@ git clone -b develop [xxx地址]
 ./control start agent
 
 # 注：如果添加不同时间访问，需要重新启动agent
-./control stop agent
-./control start agent
+./control restart agent
 ```
 打开浏览器访问 http://127.0.0.1:1984 即可

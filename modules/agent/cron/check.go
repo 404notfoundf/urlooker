@@ -13,24 +13,6 @@ import (
 	"github.com/710leo/urlooker/modules/agent/utils"
 )
 
-/*
-func StartCheck() {
-	t1 := time.NewTicker(time.Duration(g.Config.Web.Interval) * time.Second)
-	for {
-		items, err := GetItem()
-		if err != nil {
-			log.Println("[ERROR] ", err)
-		}
-
-		for _, item := range items {
-			g.WorkerChan <- 1
-			go utils.CheckTargetStatus(item)
-		}
-		<-t1.C
-	}
-}
-*/
-
 func Check() {
 	items, err := GetItemInterval()
 	if err != nil {
@@ -82,8 +64,8 @@ func GetItemInterval() (map[int][]*dataobj.DetectedItemWithInterval, error) {
 	}
 	m := make(map[int][]*dataobj.DetectedItemWithInterval)
 	for _, item := range items {
-		decetcedItem := newDetectedItem(item)
-		m[decetcedItem.Interval] = append(m[decetcedItem.Interval], decetcedItem)
+		detectedItem := newDetectedItem(item)
+		m[detectedItem.Interval] = append(m[detectedItem.Interval], detectedItem)
 	}
 	return m, nil
 }

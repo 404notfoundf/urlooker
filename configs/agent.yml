@@ -5,5 +5,5 @@ web:
   interval: 60
   timeout: 1000
 url_interval:
-  - url: [""]
-    interval: 0
+  - url: ["http://www.a.com"]
+    interval: 90
