@@ -93,8 +93,8 @@ type GlobalConfig struct {
 }
 
 type UrlInterval struct {
-	Url      string `yaml:"url"`
-	Interval int    `yaml:"interval"`
+	Url      []string `yaml:"url"`
+	Interval int      `yaml:"interval"`
 }
 
 var (

@@ -67,6 +67,7 @@ func getDetectedItemWihInterval() error {
 			detectedItemMap[idc][detectedItem.Interval] = []*dataobj.DetectedItemWithInterval{&detectedItem}
 		}
 	}
+
 	g.DetectedItemWithIntervalMap.Set(detectedItemMap)
 	return nil
 }
@@ -81,16 +82,37 @@ func newDetectedItem(s *model.Strategy) dataobj.DetectedItemWithInterval {
 	var interval int
 	// 判断是否为空
 	log.Println("len g.urlinterval is", len(g.Config.UrlInterval))
-	log.Println("!!!g.config.urlinterval", g.Config.UrlInterval)
+	// log.Println("!!!g.config.urlinterval", g.Config.UrlInterval)
+	// 比较不同情况下的url是否相同
+
 	if len(g.Config.UrlInterval) != 0 {
 		for _, u := range g.Config.UrlInterval {
-			if u.Url == s.Url {
-				force = true
+			var isOK bool
+			for _, index := range u.Url {
+				if index == s.Url {
+					isOK = true
+					break
+				}
+			}
+			if isOK {
 				interval = u.Interval
+				force = true
 				break
 			}
 		}
 	}
+
+	/*
+		if len(g.Config.UrlInterval) != 0 {
+			for _, u := range g.Config.UrlInterval {
+				if u.Url == s.Url {
+					force = true
+					interval = u.Interval
+					break
+				}
+			}
+		}
+	*/
 	var detectedItem dataobj.DetectedItemWithInterval
 	detectedItem.Idc = idc
 	detectedItem.Target = s.Url
